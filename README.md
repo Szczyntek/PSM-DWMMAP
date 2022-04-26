@@ -1,4 +1,3 @@
-# pratice8-firebaseui-vue3-app
 
 ## Project setup
 ```
