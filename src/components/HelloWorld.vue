@@ -4,22 +4,21 @@ import firebaseConfig from '../firebaseConfig';
 import firebase from 'firebase/compat/app';
 import 'firebaseui/dist/firebaseui.css'
 import { getAuth, signOut } from "firebase/auth";
-//import { getFirestore, collection, getDocs } from 'firebase/firestore'
+import { doc, setDoc, getFirestore } from "firebase/firestore"; 
 
 firebase.initializeApp(firebaseConfig);import * as firebaseui from 'firebaseui'
 const auth = getAuth()
-
- 
- 
+const db = getFirestore(firebase.initializeApp(firebaseConfig))
 
 export default {
- 
+
   data() {
     return {
     filter_price_min: 0,
     filter_price_max: 100000,
     filter_surface_min: 0,
     filter_surface_max: 100000,
+    newFlat_id: 0,
     newFlat_title: '',
     newFlat_price: '',
     newFlat_surface: '',
@@ -63,6 +62,16 @@ export default {
     var ui = new firebaseui.auth.AuthUI(firebase.auth());
     ui.start('#firebaseui-auth-container', uiConfig);
 
+const load = (i,a,b,c,d,e) => {
+  flats.push({id: i, title: a, price: b, surface: c, description: d, contact_tel: e})
+  setDoc(doc(db, "flats", 'flat'+i), {
+    title: a,
+    price: b,
+    surface: c,
+    description: d,
+    contact: e,
+});
+}
 // WYLOGOWANIE
     const handleSignOut = () => {
       signOut(auth).then(() => {
@@ -82,7 +91,7 @@ export default {
       user,
       isSignedIn,
       handleSignOut,
-      flats
+      flats, load
       
       
     }
@@ -140,6 +149,8 @@ input {
                   <textarea placeholder="Opis" v-model="newFlat_description"></textarea><br>
                   <input type="text" placeholder="Numer telefonu" v-model="newFlat_contact_tel"><br>
                   <button type="submit" @click.prevent="flats.push({id: flats.length+1, title: newFlat_title, price: newFlat_price, surface: newFlat_surface, description: newFlat_description, contact_tel: newFlat_contact_tel})">DODAJ</button>
+                  <button type="submit" @click.prevent="load(Math.ceil(Math.random()*1000000), newFlat_title, newFlat_price, newFlat_surface, newFlat_description, newFlat_contact_tel)">DODAJ</button>
+              
               </form>
               </div>
           </div>
