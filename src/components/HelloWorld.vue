@@ -15,10 +15,10 @@ export default {
 
   data() {
     return {
-    filter_price_min: 0,
-    filter_price_max: 100000,
-    filter_surface_min: 0,
-    filter_surface_max: 100000,
+    filter_price_min: null,
+    filter_price_max: null,
+    filter_surface_min: null,
+    filter_surface_max: null,
     newFlat_id: 0,
     newFlat_title: '',
     newFlat_price: '',
@@ -104,10 +104,7 @@ navigator.vibrate(500) // DZIAŁA?????
   },
   methods: {
     async getCountry() {
-      // query to get all docs in 'countries' collection
       const querySnap = await getDocs(query(collection(db, 'flats')));
-
-      // add each doc to 'countries' array
       querySnap.forEach((doc) => {
         this.flats.push(doc.data())
       })
@@ -166,7 +163,7 @@ input {
                   <input type="text" placeholder="Powierzchnia" v-model="newFlat_surface"><br>
                   <textarea placeholder="Opis" v-model="newFlat_description"></textarea><br>
                   <input type="text" placeholder="Numer telefonu" v-model="newFlat_contact_tel"><br>
-                  <button type="submit" @click.prevent="flats.push({id: flats.length+1, title: newFlat_title, price: newFlat_price, surface: newFlat_surface, description: newFlat_description, contact_tel: newFlat_contact_tel})">DODAJ</button>
+                  <!-- <button type="submit" @click.prevent="flats.push({id: flats.length+1, title: newFlat_title, price: newFlat_price, surface: newFlat_surface, description: newFlat_description, contact_tel: newFlat_contact_tel})">DODAJ</button> -->
                   <button type="submit" @click.prevent="load(Math.ceil(Math.random()*1000000), newFlat_title, newFlat_price, newFlat_surface, newFlat_description, newFlat_contact_tel)">DODAJ</button>
               
               </form>
@@ -202,11 +199,11 @@ input {
     </div>
   </div>
 
-  <h4 v-if="user">Znaleziono {{ flats.length }} ofert</h4>
+  <h4 v-if="user">Dopasowane oferty dla Ciebie</h4>
 
  <!-- LISTA OFERT -->
 <div v-for="flat in flats" :key="flat.id">
-    <div v-if="isSignedIn" class="accordion accordion-flush" :id="'accordionFlushExample'+flat.id">
+    <div v-if="isSignedIn && parseInt(flat.surface) > filter_surface_min && parseInt(flat.surface) < filter_surface_max && parseInt(flat.price) > filter_price_min && parseInt(flat.price) > filter_surface_max" class="accordion accordion-flush" :id="'accordionFlushExample'+flat.id">
         <div class="accordion-item">
             <h2 class="accordion-header" :id="'flush-heading'+flat.id">
                 <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" :data-bs-target="'#flush-collapse'+flat.id" aria-expanded="false" :aria-controls="'flush-collapse'+flat.id">
