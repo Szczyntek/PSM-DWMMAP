@@ -4,7 +4,8 @@ import firebaseConfig from '../firebaseConfig';
 import firebase from 'firebase/compat/app';
 import 'firebaseui/dist/firebaseui.css'
 import { getAuth, signOut } from "firebase/auth";
-import { doc, setDoc, getFirestore } from "firebase/firestore"; 
+import { doc, setDoc, getFirestore, query, collection, getDocs } from "firebase/firestore"; 
+
 
 firebase.initializeApp(firebaseConfig);import * as firebaseui from 'firebaseui'
 const auth = getAuth()
@@ -34,10 +35,8 @@ export default {
   setup() {
     const user = ref(null);
     const isSignedIn = ref(false);
-    const flats = reactive([{id: 0, title: 'CHATA', price: '5000', surface: '50', contact_tel: '123456789', contact_email: 'elolo@fff.com'},
-                       {id: 1, title: 'CHAWIRSKO', price: '3000', surface: '40', contact_tel: '123789', contact_email: 'eo@fff.com'}]);
+    const flats = reactive([]);
 
-    
     const uiConfig = {
       signInFlow: 'popup',
       signinSuccessUrl: '/',
@@ -65,13 +64,17 @@ export default {
 const load = (i,a,b,c,d,e) => {
   flats.push({id: i, title: a, price: b, surface: c, description: d, contact_tel: e})
   setDoc(doc(db, "flats", 'flat'+i), {
+    id: i,
     title: a,
     price: b,
     surface: c,
     description: d,
     contact: e,
 });
+navigator.vibrate(500) // DZIAŁA?????
 }
+
+
 // WYLOGOWANIE
     const handleSignOut = () => {
       signOut(auth).then(() => {
@@ -94,6 +97,21 @@ const load = (i,a,b,c,d,e) => {
       flats, load
       
       
+    }
+  },
+  created() {
+    this.getCountry()
+  },
+  methods: {
+    async getCountry() {
+      // query to get all docs in 'countries' collection
+      const querySnap = await getDocs(query(collection(db, 'flats')));
+
+      // add each doc to 'countries' array
+      querySnap.forEach((doc) => {
+        this.flats.push(doc.data())
+      })
+
     }
   }
 }
