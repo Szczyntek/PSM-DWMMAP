@@ -90,7 +90,7 @@ export default {
     ui.start('#firebaseui-auth-container', uiConfig);
 
 const load = (i,a,b,c,d,e) => {
-  flats.push({id: i, title: a, price: b, surface: c, description: d, contact_tel: e})
+  flats.push({id: i, title: a, price: b, surface: c, description: d, contact: e})
   setDoc(doc(db, "flats", 'flat'+i), {
     id: i,
     title: a,
@@ -99,11 +99,10 @@ const load = (i,a,b,c,d,e) => {
     description: d,
     contact: e,
 });
+
 navigator.vibrate(500) 
 }
 
-
-// WYLOGOWANIE
     const handleSignOut = () => {
       signOut(auth).then(() => {
       
@@ -116,20 +115,18 @@ navigator.vibrate(500)
         console.log(error);
       });
     }
-
-
     return {
       user,
       isSignedIn,
       handleSignOut,
       flats, load, LMap, LGeoJson, LMarker
       
-      
     }
   },
   created() {
     this.getCountry()
   },
+
   methods: {
     async getCountry() {
       const querySnap = await getDocs(query(collection(db, 'flats')));
@@ -142,7 +139,6 @@ navigator.vibrate(500)
      this.zoom = zoom;
      console.log(this.markers)
    },
-    
    centerUpdated (center) {
      this.center = center;
    },
@@ -152,7 +148,6 @@ navigator.vibrate(500)
         this.markerLatLng = [ 50.07696742107652,19.927056133747104 ]
         this.centerUpdated(this.center);
         this.zoomUpdated(15);
-      
 }
   },
 /*
@@ -211,7 +206,6 @@ input {
         <button @click="handleSignOut">Wyloguj</button>
       </div>
 
-
       <!-- DODAWANIE OFERTY -->
         <div id="addFlat" v-if="isSignedIn">
     <div class="accordion accordion-flush" id="accordionFlushExample">
@@ -266,64 +260,31 @@ input {
     </div>
   </div>
 
-  <!-- MAPA -->
-  <!-- <div id="map2" v-if="isSignedIn">
-    <div class="accordion accordion-flush" id="accordionFlushExample3">
-      <div class="accordion-item">
-          <h2 class="accordion-header" id="flush-headingOne3">
-              <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapseOne3" aria-expanded="false" aria-controls="flush-collapseOne3">
-                 SPRAWDŹ LOKALIZACJĘ NA MAPIE
-              </button>
-          </h2>
-          <div id="flush-collapseOne3" class="accordion-collapse collapse" aria-labelledby="flush-headingOne3" data-bs-parent="#accordionFlushExample3">
-              <div class="accordion-body" id="map">
-              <button @click="locatorButtonPressed()">pokaż lokalizacje</button>
-                  <l-map
-                      :center="center"
-                      :zoom="zoom"
-                      class="map"
-                      ref="map"
-                      @update:zoom="zoomUpdated"
-                      @update:center="centerUpdated"
-                    >
-                      <l-tile-layer
-                        :url="url"
-                      >
-                      </l-tile-layer>
-                      </l-map>
-                          
-
-              </div>
-          </div>
-      </div>
-    
-    </div>
-  </div> -->
-  
   <h4 v-if="user">Dopasowane oferty dla Ciebie</h4>
 
-
-
-
  <!-- LISTA OFERT -->
-<div v-for="flat in flats" :key="flat.id">
+  <div v-for="flat in flats" :key="flat.id">
     <div v-if="isSignedIn && parseInt(flat.surface) > filter_surface_min && parseInt(flat.surface) < filter_surface_max && parseInt(flat.price) > filter_price_min && parseInt(flat.price) > filter_surface_max" class="accordion accordion-flush" :id="'accordionFlushExample'+flat.id">
         <div class="accordion-item">
             <h2 class="accordion-header" :id="'flush-heading'+flat.id">
                 <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" :data-bs-target="'#flush-collapse'+flat.id" aria-expanded="false" :aria-controls="'flush-collapse'+flat.id">
-                    OFERTA NR {{ flat.id+1 }} - {{ flat.title }} - {{ flat.price }} zł./mies. - {{ flat.surface }} m2
+                  OFERTA #{{ flat.id }}
                 </button>
             </h2>
             <div :id="'flush-collapse'+flat.id" class="accordion-collapse collapse" :aria-labelledby="'flush-heading'+flat.id" :data-bs-parent="'accordionFlushExample'+flat.id">
-                <div class="accordion-body">Szczegóły oferty</div>
+                <div class="accordion-body">
+                <b>Powierzchnia:</b> {{ flat.surface }}<br> 
+                <b>Cena: </b>: {{ flat.price }}<br>
+                <b>Szczegóły:</b> {{ flat.description }} <br> 
+                <b>Kontakt: </b> {{ flat.contact }}</div>
             </div>
         </div>
      </div>
-</div>
+  </div>
 
 
-<button  v-if="isSignedIn" v-on:click="locatorButtonPressed">pokaż lokalizacje</button>
- <div v-if="isSignedIn" id="map">
+  <button  v-if="isSignedIn" v-on:click="locatorButtonPressed">pokaż lokalizacje</button>
+  <div v-if="isSignedIn" id="map">
               
                   <l-map
                       :center="center"
@@ -343,5 +304,5 @@ input {
 
               </div>
 
-</div>
+  </div>
 </template>
