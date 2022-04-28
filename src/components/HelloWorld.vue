@@ -21,50 +21,37 @@ export default {
   
   data() {
     return {
-    filter_price_min: null,
-    filter_price_max: null,
-    filter_surface_min: null,
-    filter_surface_max: null,
-    newFlat_id: 0,
-    newFlat_title: '',
-    newFlat_price: '',
-    newFlat_surface: '',
-    newFlat_description: '',
-    newFlat_contact_tel: '',
-    
-
-     geojson: {
+      filter_price_min: null,
+      filter_price_max: null,
+      filter_surface_min: null,
+      filter_surface_max: null,
+      newFlat_id: 0,
+      newFlat_title: '',
+      newFlat_price: '',
+      newFlat_surface: '',
+      newFlat_description: '',
+      newFlat_contact_tel: '',
+      geojson: {
         type: "FeatureCollection",
-        features: [
-          // ...
-        ],
-      },
- url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-      attribution:
-        '&copy; <a target="_blank" href="http://osm.org/copyright">OpenStreetMap</a> contributors',
+        features: []},
+      url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+      attribution: '&copy; <a target="_blank" href="http://osm.org/copyright">OpenStreetMap</a> contributors',
       zoom: 15,
       center: [ 52.24900435980021, 21.02134262909435 ],
       markerLatLng: [51.504, -0.159],
       geojsonOptions: {
-        // Options that don't rely on Leaflet methods.
       },
     }
-    
   },
-
 
   props: {
     msg: String
   },
   
-
   setup() {
     const user = ref(null);
     const isSignedIn = ref(false);
     const flats = reactive([]);
-
-
-
     const uiConfig = {
       signInFlow: 'popup',
       signinSuccessUrl: '/',
@@ -85,47 +72,49 @@ export default {
        
       }
     }
- 
     var ui = new firebaseui.auth.AuthUI(firebase.auth());
     ui.start('#firebaseui-auth-container', uiConfig);
 
-const load = (i,a,b,c,d,e) => {
-  flats.push({id: i, title: a, price: b, surface: c, description: d, contact: e})
-  setDoc(doc(db, "flats", 'flat'+i), {
-    id: i,
-    title: a,
-    price: b,
-    surface: c,
-    description: d,
-    contact: e,
-});
-
-navigator.vibrate(500) 
-}
+    const load = (i,a,b,c,d,e) => {
+        flats.push({id: i, title: a, price: b, surface: c, description: d, contact: e})
+          setDoc(doc(db, "flats", 'flat'+i), {
+            id: i,
+            title: a,
+            price: b,
+            surface: c,
+            description: d,
+            contact: e,
+        });
+      navigator.vibrate(500) 
+    }
 
     const handleSignOut = () => {
-      signOut(auth).then(() => {
+        signOut(auth).then(() => {
+        
+        user.value = null;
+        isSignedIn.value = false;
+        console.log('Signed out');
+        ui.start('#firebaseui-auth-container', uiConfig);
+        }).catch((error) => {
       
-       user.value = null;
-       isSignedIn.value = false;
-       console.log('Signed out');
-       ui.start('#firebaseui-auth-container', uiConfig);
-      }).catch((error) => {
-     
-        console.log(error);
-      });
-    }
-    return {
-      user,
-      isSignedIn,
-      handleSignOut,
-      flats, load, LMap, LGeoJson, LMarker
-      
-    }
-  },
-  created() {
-    this.getCountry()
-  },
+          console.log(error);
+        });
+      }
+      return {
+        user,
+        isSignedIn,
+        handleSignOut,
+        flats, 
+        load, 
+        LMap, 
+        LGeoJson, 
+        LMarker
+      }
+    },
+
+    created() {
+      this.getCountry()
+    },
 
   methods: {
     async getCountry() {
@@ -135,20 +124,19 @@ navigator.vibrate(500)
       })
 
     },
-     zoomUpdated (zoom) {
-     this.zoom = zoom;
-     console.log(this.markers)
-   },
-   centerUpdated (center) {
-     this.center = center;
-   },
-   locatorButtonPressed() {
-  
-        this.center = [ 50.07696742107652,19.927056133747104 ]
-        this.markerLatLng = [ 50.07696742107652,19.927056133747104 ]
-        this.centerUpdated(this.center);
-        this.zoomUpdated(15);
-}
+    zoomUpdated (zoom) {
+      this.zoom = zoom;
+      console.log(this.markers)
+      },
+    centerUpdated (center) {
+      this.center = center;
+      },
+    locatorButtonPressed() {
+      this.center = [ 50.07696742107652,19.927056133747104 ]
+      this.markerLatLng = [ 50.07696742107652,19.927056133747104 ]
+      this.centerUpdated(this.center);
+      this.zoomUpdated(15);
+      }
   },
 /*
  locatorButtonPressed() {
