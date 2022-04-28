@@ -61,17 +61,17 @@ export default {
       ],
       callbacks: {
         signInSuccessWithAuthResult: function (authResult) {
-          user.value = authResult.user.displayName;
-          console.log(authResult)
-          isSignedIn.value = true;
-          console.log('Signed in by user ' + user.value);
-         
-  
-          return false;
-        },
+            user.value = authResult.user.displayName;
+            console.log(authResult)
+            isSignedIn.value = true;
+            console.log('Signed in by user ' + user.value);
+          
+    
+            return false;
+          },
        
+        }
       }
-    }
     var ui = new firebaseui.auth.AuthUI(firebase.auth());
     ui.start('#firebaseui-auth-container', uiConfig);
 
