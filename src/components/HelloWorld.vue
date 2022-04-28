@@ -5,14 +5,20 @@ import firebase from 'firebase/compat/app';
 import 'firebaseui/dist/firebaseui.css'
 import { getAuth, signOut } from "firebase/auth";
 import { doc, setDoc, getFirestore, query, collection, getDocs } from "firebase/firestore"; 
-
+import "leaflet/dist/leaflet.css"
+import { LMap, LGeoJson, LTileLayer, LMarker} from "@vue-leaflet/vue-leaflet";
 
 firebase.initializeApp(firebaseConfig);import * as firebaseui from 'firebaseui'
 const auth = getAuth()
 const db = getFirestore(firebase.initializeApp(firebaseConfig))
 
 export default {
-
+ components: {
+    LMap,
+    LTileLayer,
+    LMarker
+  },
+  
   data() {
     return {
     filter_price_min: null,
@@ -25,17 +31,38 @@ export default {
     newFlat_surface: '',
     newFlat_description: '',
     newFlat_contact_tel: '',
+
+     geojson: {
+        type: "FeatureCollection",
+        features: [
+          // ...
+        ],
+      },
+ url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+      attribution:
+        '&copy; <a target="_blank" href="http://osm.org/copyright">OpenStreetMap</a> contributors',
+      zoom: 15,
+      center: [ 52.24900435980021, 21.02134262909435 ],
+      markerLatLng: [51.504, -0.159],
+      geojsonOptions: {
+        // Options that don't rely on Leaflet methods.
+      },
     }
+    
   },
+
 
   props: {
     msg: String
   },
   
+
   setup() {
     const user = ref(null);
     const isSignedIn = ref(false);
     const flats = reactive([]);
+
+
 
     const uiConfig = {
       signInFlow: 'popup',
@@ -94,7 +121,7 @@ navigator.vibrate(500) // DZIAŁA?????
       user,
       isSignedIn,
       handleSignOut,
-      flats, load
+      flats, load, LMap, LGeoJson, LMarker
       
       
     }
@@ -109,13 +136,42 @@ navigator.vibrate(500) // DZIAŁA?????
         this.flats.push(doc.data())
       })
 
-    }
-  }
+    },
+     zoomUpdated (zoom) {
+     this.zoom = zoom;
+     console.log(this.markers)
+   },
+   centerUpdated (center) {
+     this.center = center;
+   },
+   locatorButtonPressed() {
+   navigator.geolocation.getCurrentPosition(
+      position => {
+        this.center = [position.coords.latitude, position.coords.longitude]
+        this.markerLatLng = [position.coords.latitude, position.coords.longitude]
+        this.centerUpdated(this.center);
+      },
+      error => {
+         console.log(error.message);
+      },
+   )
+}
+  },
+
+ 
 }
 </script>
 
 
 <style scoped>
+
+ .map {
+ position: absolute;
+   margin-top: 50px;
+   width: 400px !important;
+   height: 400px !important;
+   overflow :hidden
+ }
 h3 {
   margin: 40px 0 0;
 }
@@ -199,7 +255,44 @@ input {
     </div>
   </div>
 
+  <!-- MAPA -->
+  <!-- <div id="map2" v-if="isSignedIn">
+    <div class="accordion accordion-flush" id="accordionFlushExample3">
+      <div class="accordion-item">
+          <h2 class="accordion-header" id="flush-headingOne3">
+              <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapseOne3" aria-expanded="false" aria-controls="flush-collapseOne3">
+                 SPRAWDŹ LOKALIZACJĘ NA MAPIE
+              </button>
+          </h2>
+          <div id="flush-collapseOne3" class="accordion-collapse collapse" aria-labelledby="flush-headingOne3" data-bs-parent="#accordionFlushExample3">
+              <div class="accordion-body" id="map">
+              <button @click="locatorButtonPressed()">pokaż lokalizacje</button>
+                  <l-map
+                      :center="center"
+                      :zoom="zoom"
+                      class="map"
+                      ref="map"
+                      @update:zoom="zoomUpdated"
+                      @update:center="centerUpdated"
+                    >
+                      <l-tile-layer
+                        :url="url"
+                      >
+                      </l-tile-layer>
+                      </l-map>
+                          
+
+              </div>
+          </div>
+      </div>
+    
+    </div>
+  </div> -->
+  
   <h4 v-if="user">Dopasowane oferty dla Ciebie</h4>
+
+
+
 
  <!-- LISTA OFERT -->
 <div v-for="flat in flats" :key="flat.id">
@@ -216,7 +309,26 @@ input {
         </div>
      </div>
 </div>
+<button  v-if="isSignedIn" v-on:click="locatorButtonPressed()">pokaż lokalizacje</button>
+ <div v-if="isSignedIn" id="map">
+              
+                  <l-map
+                      :center="center"
+                      :zoom="zoom"
+                      class="map"
+                      ref="map"
+                      @update:zoom="zoomUpdated"
+                      @update:center="centerUpdated"
+                    >
+                      <l-tile-layer
+                        :url="url"
+                      >
+                      </l-tile-layer>
+                      <l-marker :lat-lng="markerLatLng" >Jesteś tutaj</l-marker>
+                      </l-map>
+                          
 
+              </div>
 
 </div>
 </template>
