@@ -31,6 +31,7 @@ export default {
     newFlat_surface: '',
     newFlat_description: '',
     newFlat_contact_tel: '',
+    
 
      geojson: {
         type: "FeatureCollection",
@@ -98,7 +99,7 @@ const load = (i,a,b,c,d,e) => {
     description: d,
     contact: e,
 });
-navigator.vibrate(500) // DZIAŁA?????
+navigator.vibrate(500) 
 }
 
 
@@ -141,10 +142,21 @@ navigator.vibrate(500) // DZIAŁA?????
      this.zoom = zoom;
      console.log(this.markers)
    },
+    
    centerUpdated (center) {
      this.center = center;
    },
    locatorButtonPressed() {
+  
+        this.center = [ 50.07696742107652,19.927056133747104 ]
+        this.markerLatLng = [ 50.07696742107652,19.927056133747104 ]
+        this.centerUpdated(this.center);
+        this.zoomUpdated(15);
+      
+}
+  },
+/*
+ locatorButtonPressed() {
    navigator.geolocation.getCurrentPosition(
       position => {
         this.center = [position.coords.latitude, position.coords.longitude]
@@ -156,8 +168,7 @@ navigator.vibrate(500) // DZIAŁA?????
       },
    )
 }
-  },
-
+*/
  
 }
 </script>
@@ -309,7 +320,9 @@ input {
         </div>
      </div>
 </div>
-<button  v-if="isSignedIn" v-on:click="locatorButtonPressed()">pokaż lokalizacje</button>
+
+
+<button  v-if="isSignedIn" v-on:click="locatorButtonPressed">pokaż lokalizacje</button>
  <div v-if="isSignedIn" id="map">
               
                   <l-map
